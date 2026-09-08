@@ -1,6 +1,6 @@
 import { Sparkles, Users } from 'lucide-react';
 import type { LiveStats, LiveViewer } from '../types/live';
-import { Avatar } from './Avatar';
+import { LiveStage3D } from './LiveStage3D';
 
 export function LiveStage({ viewers, biggest, stats }: { viewers: LiveViewer[]; biggest?: LiveViewer; stats: LiveStats }) {
   return (
@@ -21,16 +21,9 @@ export function LiveStage({ viewers, biggest, stats }: { viewers: LiveViewer[]; 
         <span>❤️ {stats.likes}</span>
       </div>
 
-      <div className="spotlight">
-        <div className="glow glow-a" />
-        <div className="glow glow-b" />
-        <div className="floor-grid" />
+      <div className="spotlight spotlight-3d">
         <div className="stage-title">COMENTE PARA ENTRAR</div>
-        <div className="characters">
-          {viewers.map((viewer, index) => (
-            <Avatar key={viewer.id} viewer={viewer} index={index} isLeader={biggest?.id === viewer.id} />
-          ))}
-        </div>
+        <LiveStage3D viewers={viewers} biggest={biggest} />
 
         {biggest && (
           <div className="leader-badge">
