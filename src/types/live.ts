@@ -27,6 +27,8 @@ export type LiveViewer = {
   isFollowing: boolean;
   joinedAt: number;
   highlightUntil?: number;
+  giftEffectTier?: GiftTier;
+  giftEffectUntil?: number;
 };
 
 export type LiveStats = {
