@@ -21,6 +21,12 @@ function scaleForGift(tier: GiftTier, count = 1) {
   return base * Math.max(1, Math.min(count, 5));
 }
 
+function effectDuration(tier: GiftTier) {
+  if (tier === 'large') return 6500;
+  if (tier === 'medium') return 4200;
+  return 2600;
+}
+
 export function useLiveEvents() {
   const [viewers, setViewers] = useState<LiveViewer[]>(starterViewers);
   const [events, setEvents] = useState<LiveEvent[]>([]);
@@ -65,7 +71,9 @@ export function useLiveEvents() {
     ensureViewer(payload);
     const count = payload.giftCount ?? 1;
     const growth = scaleForGift(payload.giftTier, count);
-    const highlightUntil = payload.giftTier === 'large' ? Date.now() + 7000 : undefined;
+    const now = Date.now();
+    const giftEffectUntil = now + effectDuration(payload.giftTier);
+    const highlightUntil = payload.giftTier === 'large' ? giftEffectUntil : undefined;
 
     setViewers((current) => current.map((viewer) =>
       viewer.username === payload.username
@@ -75,6 +83,8 @@ export function useLiveEvents() {
             gifts: viewer.gifts + count,
             avatarUrl: payload.avatarUrl ?? viewer.avatarUrl,
             highlightUntil,
+            giftEffectTier: payload.giftTier,
+            giftEffectUntil,
           }
         : viewer,
     ));
