@@ -5,7 +5,7 @@ import type { GiftTier } from '../types/live';
 
 type Props = {
   tier: GiftTier;
-  active: boolean;
+  activeUntil: number;
   seed: number;
 };
 
@@ -14,7 +14,7 @@ function pseudo(seed: number, index: number) {
   return x - Math.floor(x);
 }
 
-export function GiftEffect3D({ tier, active, seed }: Props) {
+export function GiftEffect3D({ tier, activeUntil, seed }: Props) {
   const root = useRef<Group>(null);
   const ringA = useRef<Group>(null);
   const ringB = useRef<Group>(null);
@@ -33,7 +33,11 @@ export function GiftEffect3D({ tier, active, seed }: Props) {
   }, [seed, tier]);
 
   useFrame((state) => {
-    if (!active || !root.current) return;
+    if (!root.current) return;
+    const active = Date.now() < activeUntil;
+    root.current.visible = active;
+    if (!active) return;
+
     const t = state.clock.elapsedTime;
     root.current.rotation.y = t * (tier === 'large' ? 1.5 : tier === 'medium' ? 1.05 : 0.7);
     root.current.position.y = Math.sin(t * 3.2) * 0.05;
@@ -49,8 +53,6 @@ export function GiftEffect3D({ tier, active, seed }: Props) {
       ringB.current.rotation.z = -t * 0.7;
     }
   });
-
-  if (!active) return null;
 
   const color = tier === 'large' ? '#facc15' : tier === 'medium' ? '#a855f7' : '#fb7185';
   const secondary = tier === 'large' ? '#ffffff' : tier === 'medium' ? '#22d3ee' : '#fda4af';
