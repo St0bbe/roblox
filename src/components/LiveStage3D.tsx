@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useMemo } from 'react';
 import type { LiveViewer } from '../types/live';
 import { Avatar3D } from './Avatar3D';
+import { GiftEffect3D } from './GiftEffect3D';
 
 type StageEntry = {
   viewer: LiveViewer;
@@ -77,6 +78,12 @@ function CameraRig({ count, maxVisualScale }: { count: number; maxVisualScale: n
   return null;
 }
 
+function seedFor(username: string) {
+  let hash = 0;
+  for (let i = 0; i < username.length; i += 1) hash = (hash * 31 + username.charCodeAt(i)) >>> 0;
+  return hash;
+}
+
 export function LiveStage3D({ viewers, biggest }: { viewers: LiveViewer[]; biggest?: LiveViewer }) {
   const entries = useMemo(() => stageLayout(viewers, biggest), [viewers, biggest]);
   const maxVisualScale = entries.reduce((max, entry) => Math.max(max, entry.visualScale), 1);
@@ -112,14 +119,25 @@ export function LiveStage3D({ viewers, biggest }: { viewers: LiveViewer[]; bigge
         <gridHelper args={[32, 32, '#334155', '#172033']} position={[0, 0.006, 0]} />
 
         {entries.map((entry, index) => (
-          <Avatar3D
-            key={entry.viewer.id}
-            viewer={entry.viewer}
-            index={index}
-            position={entry.position}
-            isLeader={entry.isLeader}
-            visualScale={entry.visualScale}
-          />
+          <group key={entry.viewer.id}>
+            <Avatar3D
+              viewer={entry.viewer}
+              index={index}
+              position={entry.position}
+              isLeader={entry.isLeader}
+              visualScale={entry.visualScale}
+            />
+
+            {entry.viewer.giftEffectTier && entry.viewer.giftEffectUntil && (
+              <group position={entry.position} scale={entry.visualScale}>
+                <GiftEffect3D
+                  tier={entry.viewer.giftEffectTier}
+                  activeUntil={entry.viewer.giftEffectUntil}
+                  seed={seedFor(entry.viewer.username)}
+                />
+              </group>
+            )}
+          </group>
         ))}
 
         <ContactShadows
